@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "472970850712",
+    "project_id": "easy-me-e5b75",
+    "storage_bucket": "easy-me-e5b75.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:472970850712:android:b74888b8cee1795d5f7bed",
+        "android_client_info": {
+          "package_name": "com.example.easy_me"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "472970850712-phdiqm5ja1p4nephqsaqlblm7vpsl8rl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtbApR57c3nxCXB6zYq3ErNaEjMeMg45M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "472970850712-phdiqm5ja1p4nephqsaqlblm7vpsl8rl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

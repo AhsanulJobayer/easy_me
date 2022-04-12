@@ -1,6 +1,10 @@
+import 'package:easy_me/homepage.dart';
 import 'package:easy_me/signup.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+
+import 'package:fluttertoast/fluttertoast.dart';
 
 class login extends StatelessWidget {
   const login({Key? key}) : super(key: key);
@@ -27,7 +31,7 @@ class MyStatefulWidget extends StatefulWidget {
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   @override
@@ -49,10 +53,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             Container(
               padding: const EdgeInsets.all(10),
               child: TextField(
-                controller: nameController,
+                controller: emailController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: 'User Name',
+                  labelText: 'Email',
                 ),
               ),
             ),
@@ -85,8 +89,20 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 child: ElevatedButton(
                   child: const Text('Login'),
                   onPressed: () {
-                    print(nameController.text);
-                    print(passwordController.text);
+                    if (emailController.text.isEmpty) {
+                      Fluttertoast.showToast(
+                        msg: "Email can't be empty",
+                      );
+                    } else if (passwordController.text.isEmpty) {
+                      Fluttertoast.showToast(
+                        msg: "password can't be empty",
+                      );
+                    } else {
+                      signin(emailController.text, passwordController.text,
+                          context);
+                      print(emailController.text);
+                      print(passwordController.text);
+                    }
                   },
                 )),
             Row(
@@ -114,5 +130,27 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             ),
           ],
         ));
+  }
+}
+
+void signin(String email, String password, BuildContext context) async {
+  try {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    await auth.signInWithEmailAndPassword(email: email, password: password);
+    Fluttertoast.showToast(
+      msg: "Successfully logged in",
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return homepage();
+        },
+      ),
+    );
+  } catch (e) {
+    Fluttertoast.showToast(
+      msg: "Invalid email or password",
+    );
   }
 }

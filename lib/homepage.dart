@@ -276,12 +276,16 @@
 //   }
 // }
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'Workspace.dart';
 import 'help.dart';
 import 'login.dart';
+
+
+import 'package:easy_me/help.dart';
 
 void main() => runApp(const homepage());
 
@@ -313,10 +317,58 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   TextEditingController workspacenameController = TextEditingController();
   TextEditingController workspaceIDController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  final referenceDatabase = FirebaseDatabase.instance;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text("Homepage"),
+        actions: <Widget>[
+          PopupMenuButton(
+              itemBuilder: (context) => [
+                    PopupMenuItem(
+                      child: const Text("Help"),
+                      onTap: () => Future(
+                        () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const help()),
+                        ),
+                      ),
+                      value: 1,
+                    ),
+                    PopupMenuItem(
+                      child: const Text("Log Out"),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text("Log Out"),
+                            content:
+                                const Text("Are you sure you want to log out?"),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(ctx).pop();
+                                },
+                                child: const Text("No"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => login()));
+                                  Navigator.of(ctx).pop();
+                                },
+                                child: const Text("Yes"),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      value: 2,
+                    )
+                  ]),
+        ],
           title: const Text("Homepage"),
           actions: <Widget>[
           PopupMenuButton(
@@ -362,7 +414,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               ]
           ),
         ],
-
       ),
       body: ListView.separated(
         itemCount: 20,
@@ -370,6 +421,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           return ListTile(
             //contentPadding: const EdgeInsets.only(left:20,),
             title: Text("Workspace $index"),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => workspace()),
+            ),
           onTap: () => Navigator.of(context).push(
                    MaterialPageRoute(builder: (_) => workspace()),
           ),
@@ -390,6 +444,24 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               builder: (BuildContext context) {
                 return Dialog(
                     child: Container(
+                  height: 100.0,
+                  width: 60.0,
+                  child: Column(children: [
+                    GestureDetector(
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Dialog(
+                                    child: Container(
+                                        height: 230.0,
+                                        width: 60.0,
+                                        child: Column(
+                                          children: <Widget>[
+                                            Container(
+                                              padding: EdgeInsets.all(10.0),
+                                              child: TextField(
+                                                controller:
                       height: 100.0,
                       width: 60.0,
                       child: Column(children: [
@@ -418,6 +490,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                                     ),
                                                   ),
                                                 ),
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: EdgeInsets.all(10.0),
+                                              child: TextField(
+                                                controller:
                                                 Container(
                                                   padding: EdgeInsets.all(10.0),
                                                   child: TextField(
@@ -436,6 +514,66 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                                     padding:
                                                     const EdgeInsets.fromLTRB(
                                                         10, 0, 10, 0),
+                                                child: ElevatedButton(
+                                                  child: const Text(
+                                                      'Create Your Workspace'),
+                                                  onPressed: () {
+                                                    //workspace creating button
+                                                    if (workspaceIDController
+                                                        .text.isEmpty) {
+                                                      Fluttertoast.showToast(
+                                                        msg:
+                                                            "workspace_ID can't be empty",
+                                                      );
+                                                    } else if (workspacenameController
+                                                        .text.isEmpty) {
+                                                      Fluttertoast.showToast(
+                                                        msg:
+                                                            "Workspace name can't be empty",
+                                                      );
+                                                    } else {
+                                                      retrieve_workspace_date();
+                                                      create_workspace(
+                                                          workspaceIDController
+                                                              .text,
+                                                          workspacenameController
+                                                              .text,
+                                                          context);
+                                                    }
+                                                  },
+                                                )),
+                                          ],
+                                        )));
+                              });
+                          Fluttertoast.showToast(
+                            msg: "Create workspace",
+                          );
+                        },
+                        child: Container(
+                          child: Padding(
+                            padding: EdgeInsets.all(10.0),
+                            child: const Text(
+                              'Create',
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ),
+                        )),
+                    GestureDetector(
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Dialog(
+                                    child: Container(
+                                        height: 150.0,
+                                        width: 60.0,
+                                        child: Column(
+                                          children: <Widget>[
+                                            Container(
+                                              padding: EdgeInsets.all(10.0),
+                                              child: TextField(
+                                                obscureText: true,
+                                                controller:
                                                     child: ElevatedButton(
                                                       child: const Text(
                                                           'Create Your Workspace'),
@@ -525,4 +663,42 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       ),
     );
   }
+}
+
+void create_workspace(
+    String workspace_ID, String workspace_name, BuildContext context) async {
+  try {
+    final referenceDatabase = FirebaseDatabase.instance;
+    final ref = referenceDatabase.ref().child('Workspace');
+    if (!workspace_ID.isEmpty && !workspace_name.isEmpty) {
+      ref.child(workspace_ID).set({
+        'Workspace_ID': workspace_ID,
+        'workspace_name': workspace_name,
+      });
+    }
+    Fluttertoast.showToast(
+      msg: "New workspace created Successfuly",
+    );
+    Navigator.of(context).pop();
+  } catch (e) {
+    Fluttertoast.showToast(
+      msg: "Please fill up the void",
+    );
+  }
+}
+
+Future<void> retrieve_workspace_date() async {
+  final db = FirebaseDatabase.instance.ref().child("Workspace");
+  // Get the data once
+  DatabaseEvent event = await db.once();
+
+// Print the data of the snapshot
+  print(event.snapshot.value); // { "name": "John" }
+  final db1 = FirebaseDatabase.instance.ref().child("User_Info");
+  // Get the data once
+  DatabaseEvent event1 = await db1.once();
+
+// Print the data of the snapshot
+  print(event1.snapshot.value); // { "name": "John" }
+}
 }

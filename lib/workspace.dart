@@ -7,7 +7,7 @@ class workspace extends StatelessWidget {
     return MaterialApp(
       title: 'Hello World Demo Application',
       theme: ThemeData(
-        primarySwatch: Colors.lightGreen,
+        primarySwatch: Colors.green,
       ),
       home: MyHomePage(),
     );

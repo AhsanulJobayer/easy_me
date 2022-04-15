@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -33,6 +34,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   TextEditingController workspacenameController = TextEditingController();
   TextEditingController workspaceIDController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  final referenceDatabase = FirebaseDatabase.instance;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,7 +82,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                             Container(
                                               padding: EdgeInsets.all(10.0),
                                               child: TextField(
-                                                obscureText: true,
                                                 controller:
                                                     workspacenameController,
                                                 decoration:
@@ -93,7 +94,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                             Container(
                                               padding: EdgeInsets.all(10.0),
                                               child: TextField(
-                                                obscureText: true,
                                                 controller:
                                                     workspaceIDController,
                                                 decoration:
@@ -112,10 +112,28 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                                   child: const Text(
                                                       'Create Your Workspace'),
                                                   onPressed: () {
-                                                    Fluttertoast.showToast(
+                                                    //workspace creating button
+                                                    if (workspaceIDController
+                                                        .text.isEmpty) {
+                                                      Fluttertoast.showToast(
                                                         msg:
-                                                            "New Workspace Created");
-                                                    Navigator.of(context).pop();
+                                                            "workspace_ID can't be empty",
+                                                      );
+                                                    } else if (workspacenameController
+                                                        .text.isEmpty) {
+                                                      Fluttertoast.showToast(
+                                                        msg:
+                                                            "Workspace name can't be empty",
+                                                      );
+                                                    } else {
+                                                      retrieve_workspace_date();
+                                                      create_workspace(
+                                                          workspaceIDController
+                                                              .text,
+                                                          workspacenameController
+                                                              .text,
+                                                          context);
+                                                    }
                                                   },
                                                 )),
                                           ],
@@ -198,4 +216,41 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       ),
     );
   }
+}
+
+void create_workspace(
+    String workspace_ID, String workspace_name, BuildContext context) async {
+  try {
+    final referenceDatabase = FirebaseDatabase.instance;
+    final ref = referenceDatabase.ref().child('Workspace');
+    if (!workspace_ID.isEmpty && !workspace_name.isEmpty) {
+      ref.child(workspace_ID).set({
+        'Workspace_ID': workspace_ID,
+        'workspace_name': workspace_name,
+      });
+    }
+    Fluttertoast.showToast(
+      msg: "New workspace created Successfuly",
+    );
+    Navigator.of(context).pop();
+  } catch (e) {
+    Fluttertoast.showToast(
+      msg: "Please fill up the void",
+    );
+  }
+}
+
+Future<void> retrieve_workspace_date() async {
+  final db = FirebaseDatabase.instance.ref().child("Workspace");
+  // Get the data once
+  DatabaseEvent event = await db.once();
+
+// Print the data of the snapshot
+  print(event.snapshot.value); // { "name": "John" }
+  final db1 = FirebaseDatabase.instance.ref().child("User_Info");
+  // Get the data once
+  DatabaseEvent event1 = await db1.once();
+
+// Print the data of the snapshot
+  print(event1.snapshot.value); // { "name": "John" }
 }

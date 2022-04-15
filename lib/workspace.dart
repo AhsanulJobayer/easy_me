@@ -1,31 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+import 'Workspace.dart';
+import 'help.dart';
+//import 'login.dart';
 
 class workspace extends StatelessWidget {
+  const workspace({Key? key}) : super(key: key);
 
+  // This widget is the root
+  // of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Hello World Demo Application',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-      ),
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Workspace'),
-      ),
-
-      body: const Center(
-          child:
-          Text('Workspace',)
-      ),
+        title: "Workspace",
+        theme: ThemeData(primarySwatch: Colors.green),
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          appBar: AppBar(
+          title: const Text("Workspace"),
+    ),
+    ),
     );
   }
 }

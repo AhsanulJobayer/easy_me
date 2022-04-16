@@ -153,12 +153,17 @@ void signin(String email, String password, BuildContext context) async {
 }
 
 Future<void> retrieve_user_date(String email) async {
-  final db1 = FirebaseDatabase.instance.ref().child("User_Info");
+  final db1 = FirebaseDatabase.instance
+      .ref()
+      .child("User_Info")
+      .set({"Email": email}).asStream();
   // Get the data once
 
-  DatabaseEvent event1 = await db1.once();
+  // DatabaseEvent event1 = await db1.once();
 
 // Print the data of the snapshot
-  event1.snapshot.value;
-  print(event1.snapshot.value); // { "name": "John" }
+  db1.toString();
+  print(db1);
+  // event1.snapshot.value;
+  // print(event1.snapshot.value); // { "name": "John" }
 }

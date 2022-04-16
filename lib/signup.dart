@@ -206,6 +206,7 @@ Future<User?> registerUsingEmailPassword({
 void signUp(
     String email, String password, String username, String full_name) async {
   try {
+    String nameOnly = email.substring(0,email.indexOf('@'));
     FirebaseAuth auth = FirebaseAuth.instance;
     final referenceDatabase = FirebaseDatabase.instance;
     final ref = referenceDatabase.ref().child('User_Info');
@@ -214,9 +215,10 @@ void signUp(
         !full_name.isEmpty &&
         !email.isEmpty &&
         !password.isEmpty) {
-      ref.child(username).set({
+      ref.child(nameOnly).set({
         'Username': username,
         'FullName': full_name,
+        'NameOnly': nameOnly,
         'Email': email,
         'Password': password,
       });

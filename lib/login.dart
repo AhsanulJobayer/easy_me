@@ -102,8 +102,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                     } else {
                       signin(emailController.text, passwordController.text,
                           context);
-                      print(emailController.text);
-                      print(passwordController.text);
+                      // print(emailController.text);
+                      // print(passwordController.text);
                     }
                   },
                 )),
@@ -142,9 +142,22 @@ void signin(String email, String password, BuildContext context) async {
     Fluttertoast.showToast(
       msg: "Successfully logged in",
     );
-    retrieve_user_date(email);
+
+    String nameOnly = email.substring(0,email.indexOf('@'));
+    final db1 = FirebaseDatabase.instance.ref().child("User_Info").child(nameOnly);
+    // Get the data once
+    DatabaseEvent event1 = await db1.once();
+
+    final data  = event1.snapshot.value;
+
+    //print(data.toString());
+
+    DatabaseEvent usernameEvent = await db1.child("Username").once();
+    String username = usernameEvent.snapshot.value.toString();
+    print("UserName: " + username);
+
     Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => homepage(Email: email)));
+        .push(MaterialPageRoute(builder: (context) => homepage(Username: username)));
   } catch (e) {
     Fluttertoast.showToast(
       msg: "Invalid email or password",
@@ -152,18 +165,41 @@ void signin(String email, String password, BuildContext context) async {
   }
 }
 
-Future<void> retrieve_user_date(String email) async {
-  final db1 = FirebaseDatabase.instance
-      .ref()
-      .child("User_Info")
-      .set({"Email": email}).asStream();
-  // Get the data once
-
-  // DatabaseEvent event1 = await db1.once();
-
-// Print the data of the snapshot
-  db1.toString();
-  print(db1);
-  // event1.snapshot.value;
-  // print(event1.snapshot.value); // { "name": "John" }
-}
+// Future<String> retrieve_user_date(String email) async {
+//   // final db1 = FirebaseDatabase.instance
+//   //     .ref()
+//   //     .child("User_Info")
+//   //     .set({"Email": email}).asStream();
+//   // Get the data once
+//
+//   // DatabaseEvent event1 = await db1.once();
+//
+// // Print the data of the snapshot
+// //   db1.toString();
+// //   print(db1);
+//   // event1.snapshot.value;
+//   // print(event1.snapshot.value); // { "name": "John" }
+//
+//   String nameOnly = email.substring(0,email.indexOf('@'));
+//   final db1 = FirebaseDatabase.instance.ref().child("User_Info").child(nameOnly);
+//   // Get the data once
+//   DatabaseEvent event1 = await db1.once();
+//
+//   final data  = event1.snapshot.value;
+//
+//   //print(data.toString());
+//
+//   DatabaseEvent usernameEvent = await db1.child("Username").once();
+//   String username = usernameEvent.snapshot.value.toString();
+//   print("UserName: " + username);
+//
+//   // if(event1.snapshot.value != null && ) {
+//   //
+//   // }
+//
+// // Print the data of the snapshot
+//   print("retrieved data: ");
+//   print(event1.snapshot.value); // { "name": "John" }
+//
+//   return username;
+// }

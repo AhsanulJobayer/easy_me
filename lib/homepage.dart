@@ -303,5 +303,6 @@ Future<void> retrieve_workspace_date() async {
   DatabaseEvent event1 = await db1.once();
 
 // Print the data of the snapshot
+
   print(event1.snapshot.value); // { "name": "John" }
 }

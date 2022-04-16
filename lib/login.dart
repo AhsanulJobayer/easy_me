@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_me/homepage.dart';
 import 'package:easy_me/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import 'package:fluttertoast/fluttertoast.dart';
@@ -140,17 +142,23 @@ void signin(String email, String password, BuildContext context) async {
     Fluttertoast.showToast(
       msg: "Successfully logged in",
     );
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return homepage();
-        },
-      ),
-    );
+    retrieve_user_date(email);
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => homepage(Email: email)));
   } catch (e) {
     Fluttertoast.showToast(
       msg: "Invalid email or password",
     );
   }
+}
+
+Future<void> retrieve_user_date(String email) async {
+  final db1 = FirebaseDatabase.instance.ref().child("User_Info");
+  // Get the data once
+
+  DatabaseEvent event1 = await db1.once();
+
+// Print the data of the snapshot
+  event1.snapshot.value;
+  print(event1.snapshot.value); // { "name": "John" }
 }

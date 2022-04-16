@@ -5,10 +5,8 @@ import 'package:easy_me/login.dart';
 import 'package:easy_me/workspace.dart';
 import 'package:easy_me/help.dart';
 
-void main() => runApp(const homepage());
-
 class homepage extends StatelessWidget {
-  const homepage({Key? key}) : super(key: key);
+  const homepage({Key? key, Email}) : super(key: key);
 
   // This widget is the root
   // of your application.
@@ -44,48 +42,48 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         actions: <Widget>[
           PopupMenuButton(
               itemBuilder: (context) => [
-                PopupMenuItem(
-                  child: const Text("Help"),
-                  onTap: () => Future(
+                    PopupMenuItem(
+                      child: const Text("Help"),
+                      onTap: () => Future(
                         () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const help()),
-                    ),
-                  ),
-                  value: 1,
-                ),
-                PopupMenuItem(
-                  child: const Text("Log Out"),
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text("Log Out"),
-                        content:
-                        const Text("Are you sure you want to log out?"),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(ctx).pop();
-                            },
-                            child: const Text("No"),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const login()));
-                              Navigator.of(ctx).pop();
-                            },
-                            child: const Text("Yes"),
-                          ),
-                        ],
+                          MaterialPageRoute(builder: (_) => const help()),
+                        ),
                       ),
-                    );
-                  },
-                  value: 2,
-                )
-              ]),
+                      value: 1,
+                    ),
+                    PopupMenuItem(
+                      child: const Text("Log Out"),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text("Log Out"),
+                            content:
+                                const Text("Are you sure you want to log out?"),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(ctx).pop();
+                                },
+                                child: const Text("No"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => const login()));
+                                  Navigator.of(ctx).pop();
+                                },
+                                child: const Text("Yes"),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      value: 2,
+                    )
+                  ]),
         ],
       ),
       body: ListView.separated(
@@ -114,151 +112,154 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               builder: (BuildContext context) {
                 return Dialog(
                     child: Container(
-                      height: 100.0,
-                      width: 60.0,
-                      child: Column(children: [
-                        GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return Dialog(
-                                        child: Container(
-                                            height: 230.0,
-                                            width: 60.0,
-                                            child: Column(
-                                              children: <Widget>[
-                                                Container(
-                                                  padding: const EdgeInsets.all(10.0),
-                                                  child: TextField(
-                                                    controller:
+                  height: 100.0,
+                  width: 60.0,
+                  child: Column(children: [
+                    GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Dialog(
+                                    child: Container(
+                                        height: 230.0,
+                                        width: 60.0,
+                                        child: Column(
+                                          children: <Widget>[
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.all(10.0),
+                                              child: TextField(
+                                                controller:
                                                     workspacenameController,
-                                                    decoration:
+                                                decoration:
                                                     const InputDecoration(
-                                                      border: OutlineInputBorder(),
-                                                      labelText: 'Name',
-                                                    ),
-                                                  ),
+                                                  border: OutlineInputBorder(),
+                                                  labelText: 'Name',
                                                 ),
-                                                Container(
-                                                  padding: const EdgeInsets.all(10.0),
-                                                  child: TextField(
-                                                    controller:
+                                              ),
+                                            ),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.all(10.0),
+                                              child: TextField(
+                                                controller:
                                                     workspaceIDController,
-                                                    decoration:
+                                                decoration:
                                                     const InputDecoration(
-                                                      border: OutlineInputBorder(),
-                                                      labelText: 'ID',
-                                                    ),
-                                                  ),
+                                                  border: OutlineInputBorder(),
+                                                  labelText: 'ID',
                                                 ),
-                                                Container(
-                                                    height: 50,
-                                                    padding:
+                                              ),
+                                            ),
+                                            Container(
+                                                height: 50,
+                                                padding:
                                                     const EdgeInsets.fromLTRB(
                                                         10, 0, 10, 0),
-                                                    child: ElevatedButton(
-                                                      child: const Text(
-                                                          'Create Your Workspace'),
-                                                      onPressed: () {
-                                                        //workspace creating button
-                                                        if (workspaceIDController
-                                                            .text.isEmpty) {
-                                                          Fluttertoast.showToast(
-                                                            msg:
+                                                child: ElevatedButton(
+                                                  child: const Text(
+                                                      'Create Your Workspace'),
+                                                  onPressed: () {
+                                                    //workspace creating button
+                                                    if (workspaceIDController
+                                                        .text.isEmpty) {
+                                                      Fluttertoast.showToast(
+                                                        msg:
                                                             "workspace_ID can't be empty",
-                                                          );
-                                                        } else if (workspacenameController
-                                                            .text.isEmpty) {
-                                                          Fluttertoast.showToast(
-                                                            msg:
+                                                      );
+                                                    } else if (workspacenameController
+                                                        .text.isEmpty) {
+                                                      Fluttertoast.showToast(
+                                                        msg:
                                                             "Workspace name can't be empty",
-                                                          );
-                                                        } else {
-                                                          retrieve_workspace_date();
-                                                          create_workspace(
-                                                              workspaceIDController
-                                                                  .text,
-                                                              workspacenameController
-                                                                  .text,
-                                                              context);
-                                                        }
-                                                      },
-                                                    )),
-                                              ],
-                                            )));
-                                  });
-                              Fluttertoast.showToast(
-                                msg: "Create workspace",
-                              );
-                            },
-                            child: Container(
-                              child: const Padding(
-                                padding: EdgeInsets.all(10.0),
-                                child: Text(
-                                  'Create',
-                                  style: TextStyle(fontSize: 20),
-                                ),
-                              ),
-                            )),
-                        GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return Dialog(
-                                        child: SizedBox(
-                                            height: 150.0,
-                                            width: 60.0,
-                                            child: Column(
-                                              children: <Widget>[
-                                                Container(
-                                                  padding: const EdgeInsets.all(10.0),
-                                                  child: TextField(
-                                                    obscureText: true,
-                                                    controller:
+                                                      );
+                                                    } else {
+                                                      retrieve_workspace_date();
+                                                      create_workspace(
+                                                          workspaceIDController
+                                                              .text,
+                                                          workspacenameController
+                                                              .text,
+                                                          context);
+                                                    }
+                                                  },
+                                                )),
+                                          ],
+                                        )));
+                              });
+                          Fluttertoast.showToast(
+                            msg: "Create workspace",
+                          );
+                        },
+                        child: Container(
+                          child: const Padding(
+                            padding: EdgeInsets.all(10.0),
+                            child: Text(
+                              'Create',
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ),
+                        )),
+                    GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Dialog(
+                                    child: SizedBox(
+                                        height: 150.0,
+                                        width: 60.0,
+                                        child: Column(
+                                          children: <Widget>[
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.all(10.0),
+                                              child: TextField(
+                                                obscureText: true,
+                                                controller:
                                                     workspaceIDController,
-                                                    decoration:
+                                                decoration:
                                                     const InputDecoration(
-                                                      border: OutlineInputBorder(),
-                                                      labelText:
+                                                  border: OutlineInputBorder(),
+                                                  labelText:
                                                       'Give a Valid Workspace ID',
-                                                    ),
-                                                  ),
                                                 ),
-                                                Container(
-                                                    height: 50,
-                                                    padding:
+                                              ),
+                                            ),
+                                            Container(
+                                                height: 50,
+                                                padding:
                                                     const EdgeInsets.fromLTRB(
                                                         10, 0, 10, 0),
-                                                    child: ElevatedButton(
-                                                      child: const Text(
-                                                          'Join A New Workspace'),
-                                                      onPressed: () {
-                                                        Fluttertoast.showToast(
-                                                            msg:
+                                                child: ElevatedButton(
+                                                  child: const Text(
+                                                      'Join A New Workspace'),
+                                                  onPressed: () {
+                                                    Fluttertoast.showToast(
+                                                        msg:
                                                             "Successfully Joined");
-                                                        Navigator.of(context).pop();
-                                                      },
-                                                    )),
-                                              ],
-                                            )));
-                                  });
-                              Fluttertoast.showToast(
-                                msg: "Join workspace",
-                              );
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.all(10.0),
-                              child: Text(
-                                'Join',
-                                style: TextStyle(fontSize: 20),
-                              ),
-                            ))
-                      ]),
-                    ));
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                )),
+                                          ],
+                                        )));
+                              });
+                          Fluttertoast.showToast(
+                            msg: "Join workspace",
+                          );
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: Text(
+                            'Join',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ))
+                  ]),
+                ));
               });
         },
         tooltip: 'Increment',

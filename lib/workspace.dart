@@ -14,7 +14,6 @@ import 'package:uuid/uuid.dart';
 class workspace extends StatelessWidget {
   const workspace({Key? key}) : super(key: key);
 
-
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
@@ -144,9 +143,9 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _handlePreviewDataFetched(
-      types.TextMessage message,
-      types.PreviewData previewData,
-      ) {
+    types.TextMessage message,
+    types.PreviewData previewData,
+  ) {
     final index = _messages.indexWhere((element) => element.id == message.id);
     final updatedMessage = _messages[index].copyWith(previewData: previewData);
 

@@ -34,6 +34,9 @@ class MyStatefulWidget extends State<homepage> {
   // final db = FirebaseDatabase.instance.ref().child("Workspace").orderByChild("workspace_name");
   // List<Model> list = [];
 
+  // final db = FirebaseDatabase.instance.ref().child("Workspace").orderByChild("workspace_name");
+  // List<Model> list = []; main
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -312,12 +315,4 @@ Future<void> retrieve_workspace_date() async {
   DatabaseEvent event = await db.once();
 
   print(event.snapshot.value); // { "name": "John" }
-}
-
-class username {
-  late String user_name;
-
-  Username(String user_name) {
-    this.user_name = user_name;
-  }
 }

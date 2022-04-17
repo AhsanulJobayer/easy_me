@@ -11,30 +11,29 @@ import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
 import 'package:uuid/uuid.dart';
 
-class workspace extends StatelessWidget {
-  const workspace({Key? key}) : super(key: key);
+class workspace extends StatefulWidget{
+  final String workspace_ID;
+  final String username;
+  workspace({Key? key, required this.workspace_ID, required this.username}) : super(key: key);
+
 
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: ChatPage(),
-    );
-  }
+  ChatPage createState() => ChatPage(workspace_ID, username);
 }
 
-class ChatPage extends StatefulWidget {
-  const ChatPage({Key? key}) : super(key: key);
-
-  @override
-  _ChatPageState createState() => _ChatPageState();
-}
-
-class _ChatPageState extends State<ChatPage> {
+class ChatPage extends State<workspace> {
   List<types.Message> _messages = [];
   final _user = const types.User(id: '1234');
+  final String workspace_ID;
+  final String username;
+  ChatPage(this.workspace_ID, this.username);
 
   @override
   void initState() {
+    print("workspace_ID:: ");
+    print(workspace_ID);
+    print(username);
+
     super.initState();
     _loadMessages();
   }

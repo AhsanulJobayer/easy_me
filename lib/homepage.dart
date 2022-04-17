@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_me/Model.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:easy_me/login.dart';
 import 'package:easy_me/workspace.dart';
@@ -28,8 +31,8 @@ class homepage extends StatefulWidget {
     TextEditingController emailController = TextEditingController();
     final referenceDatabase = FirebaseDatabase.instance;
 
-    final db = FirebaseDatabase.instance.ref().child("Workspace");
-    List<Model> list = [];
+    // final db = FirebaseDatabase.instance.ref().child("Workspace").orderByChild("workspace_name");
+    // List<Model> list = [];
 
     @override
     Widget build(BuildContext context) {
@@ -88,25 +91,38 @@ class homepage extends StatefulWidget {
                 ]),
           ],
         ),
-        body: ListView.separated(
-          itemCount: 20,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              //contentPadding: const EdgeInsets.only(left:20,),
-              title: Text("Workspace $index"),
-              onTap: () =>
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const workspace()),
-                  ),
-            );
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return const Divider(height: 5);
-          },
-          //itemCount: images.length,
-          shrinkWrap: true,
-          padding: const EdgeInsets.all(5),
-          scrollDirection: Axis.vertical,
+        body: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance.collection('Workspace').where('Username', isEqualTo: Username).snapshots(),
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
+
+            if(!snapshot.hasData) {
+              print("no data");
+              return const Text("No workspace to work with");
+            }
+            else {
+              print("Worksapces retirieved :: ");
+              print(snapshot.data.toString());
+
+              return ListView(
+                shrinkWrap: true,
+                children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                  Map<String, dynamic> data =
+                  document.data()! as Map<String, dynamic>;
+                  return Card(
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+                      title: Padding(padding: EdgeInsets.all(5),
+                      child: Text(data['workspace_name'])),
+                      onTap: () =>Navigator.push(
+                          context, MaterialPageRoute(builder: (context) => workspace(workspace_ID: data['Workspace_ID'], username: Username))),
+                    ),
+                  );
+                }).toList(),
+
+              );
+
+      }
+                },
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
@@ -280,15 +296,11 @@ class homepage extends StatefulWidget {
 void create_workspace(
     String workspaceID, String workspaceName, String Username, BuildContext context) async {
   try {
-    final referenceDatabase = FirebaseDatabase.instance;
-    final ref = referenceDatabase.ref().child('Workspace');
-    if (workspaceID.isNotEmpty && workspaceName.isNotEmpty) {
-      ref.child(workspaceID).set({
-        'Workspace_ID': workspaceID,
-        'workspace_name': workspaceName,
-        'Username': Username,
-      });
-    }
+    FirebaseFirestore.instance.collection("Workspace").doc(workspaceID).set({
+      'Workspace_ID': workspaceID,
+      'workspace_name': workspaceName,
+      'Username': Username,
+    });
     Fluttertoast.showToast(
       msg: "New workspace created Successfully",
     );
@@ -305,4 +317,14 @@ Future<void> retrieve_workspace_date() async {
   DatabaseEvent event = await db.once();
 
   print(event.snapshot.value); // { "name": "John" }
+}
+
+class username {
+
+  late String user_name;
+
+  Username(String user_name) {
+
+    this.user_name = user_name;
+  }
 }

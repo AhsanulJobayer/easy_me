@@ -157,7 +157,7 @@ void signin(String email, String password, BuildContext context) async {
     print("UserName: " + username);
 
     Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => homepage(Username: username)));
+        .pushReplacement(MaterialPageRoute(builder: (context) => homepage(Username: username)));
   } catch (e) {
     Fluttertoast.showToast(
       msg: "Invalid email or password",

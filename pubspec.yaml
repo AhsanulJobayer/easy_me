@@ -57,6 +57,7 @@ dependencies:
   mime: ^1.0.1
   open_file: ^3.2.1
   uuid: ^3.0.6
+  path_provider: ^2.0.9
 
 dev_dependencies:
   flutter_test:
@@ -86,6 +87,7 @@ flutter:
     - assets/images/logo/logo.png
     - assets/images/logo/icon.png
     - assets/textFile/help.txt
+    - assets/messages.json
     
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

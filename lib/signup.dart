@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_me/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -206,7 +207,7 @@ Future<User?> registerUsingEmailPassword({
 void signUp(
     String email, String password, String username, String full_name) async {
   try {
-    String nameOnly = email.substring(0,email.indexOf('@'));
+    String nameOnly = email.substring(0, email.indexOf('@'));
     FirebaseAuth auth = FirebaseAuth.instance;
     final referenceDatabase = FirebaseDatabase.instance;
     final ref = referenceDatabase.ref().child('User_Info');
@@ -223,6 +224,13 @@ void signUp(
         'Password': password,
       });
     }
+    FirebaseFirestore.instance.collection("User_Info").doc(username).set({
+      'Username': username,
+      'FullName': full_name,
+      'NameOnly': nameOnly,
+      'Email': email,
+      'Password': password,
+    });
     Fluttertoast.showToast(
       msg: "User created",
     );

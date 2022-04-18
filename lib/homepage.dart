@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_me/Model.dart';
+import 'package:easy_me/profile.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,7 @@ class MyStatefulWidget extends State<homepage> {
 
   TextEditingController workspacenameController = TextEditingController();
   TextEditingController workspaceIDController = TextEditingController();
+  TextEditingController workspaceJoinIDController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   final referenceDatabase = FirebaseDatabase.instance;
 
@@ -39,12 +41,23 @@ class MyStatefulWidget extends State<homepage> {
 
   @override
   Widget build(BuildContext context) {
+    print("Hey this is your Home page  :  " + Username);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Homepage"),
         actions: <Widget>[
           PopupMenuButton(
               itemBuilder: (context) => [
+                    PopupMenuItem(
+                      child: const Text("Profile"),
+                      onTap: () => Future(
+                        () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => profile(Username: Username)),
+                        ),
+                      ),
+                      value: 1,
+                    ),
                     PopupMenuItem(
                       child: const Text("Help"),
                       onTap: () => Future(
@@ -242,7 +255,7 @@ class MyStatefulWidget extends State<homepage> {
                                               child: TextField(
                                                 obscureText: true,
                                                 controller:
-                                                    workspaceIDController,
+                                                    workspaceJoinIDController,
                                                 decoration:
                                                     const InputDecoration(
                                                   border: OutlineInputBorder(),
@@ -260,6 +273,20 @@ class MyStatefulWidget extends State<homepage> {
                                                   child: const Text(
                                                       'Join A New Workspace'),
                                                   onPressed: () {
+                                                    if (workspaceJoinIDController
+                                                        .text.isEmpty) {
+                                                      Fluttertoast.showToast(
+                                                        msg:
+                                                            "workspace_ID can't be empty",
+                                                      );
+                                                    } else {
+                                                      retrieve_workspace_date();
+                                                      join_workspace(
+                                                          workspaceJoinIDController
+                                                              .text,
+                                                          Username,
+                                                          context);
+                                                    }
                                                     Fluttertoast.showToast(
                                                         msg:
                                                             "Successfully Joined");
@@ -301,6 +328,35 @@ void create_workspace(String workspaceID, String workspaceName, String Username,
     });
     Fluttertoast.showToast(
       msg: "New workspace created Successfully",
+    );
+    Navigator.of(context).pop();
+  } catch (e) {
+    Fluttertoast.showToast(
+      msg: "Please fill up the void",
+    );
+  }
+}
+
+void join_workspace(
+    String workspaceID, String Username, BuildContext context) async {
+  try {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('Workspace')
+        .where('Workspace_ID', isEqualTo: workspaceID)
+        .get();
+    List data = [];
+    data = querySnapshot.docs.map((doc) => doc.data()).toList();
+    //List list = data.entries.map((e) => data(e.key, e.value)).toList();
+    print("JOining a workspace _shit" + data.toString());
+    String unique_name = workspaceID + Username;
+
+    FirebaseFirestore.instance.collection("Workspace").doc(unique_name).set({
+      'Workspace_ID': workspaceID,
+      'workspace_name': "hagu",
+      'Username': Username,
+    });
+    Fluttertoast.showToast(
+      msg: "New workspace joined Successfully",
     );
     Navigator.of(context).pop();
   } catch (e) {

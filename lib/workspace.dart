@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -23,13 +25,14 @@ class workspace extends StatefulWidget{
 
 class ChatPage extends State<workspace> {
   List<types.Message> _messages = [];
-  final _user = const types.User(id: '1234');
   final String workspace_ID;
   final String username;
   ChatPage(this.workspace_ID, this.username);
+  //final _user = const types.User(id: '1234');
 
   @override
   void initState() {
+
     print("workspace_ID:: ");
     print(workspace_ID);
     print(username);
@@ -41,6 +44,10 @@ class ChatPage extends State<workspace> {
   void _addMessage(types.Message message) {
     setState(() {
       _messages.insert(0, message);
+
+      String unique_ID = message.id + message.createdAt.toString();
+      print("Unique_ID: " +unique_ID);
+      FirebaseFirestore.instance.collection("Messages").doc(unique_ID).set(message.toJson());
     });
   }
 
@@ -90,15 +97,16 @@ class ChatPage extends State<workspace> {
   }
 
   void _handleFileSelection() async {
+    final user = types.User(id: username);
     final result = await FilePicker.platform.pickFiles(
       type: FileType.any,
     );
 
     if (result != null && result.files.single.path != null) {
       final message = types.FileMessage(
-        author: _user,
+        author: user,
         createdAt: DateTime.now().millisecondsSinceEpoch,
-        id: const Uuid().v4(),
+        id: workspace_ID,
         mimeType: lookupMimeType(result.files.single.path!),
         name: result.files.single.name,
         size: result.files.single.size,
@@ -117,14 +125,15 @@ class ChatPage extends State<workspace> {
     );
 
     if (result != null) {
+      final user = types.User(id: username);
       final bytes = await result.readAsBytes();
       final image = await decodeImageFromList(bytes);
 
       final message = types.ImageMessage(
-        author: _user,
+        author: user,
         createdAt: DateTime.now().millisecondsSinceEpoch,
         height: image.height.toDouble(),
-        id: const Uuid().v4(),
+        id: workspace_ID,
         name: result.name,
         size: bytes.length,
         uri: result.path,
@@ -156,10 +165,11 @@ class ChatPage extends State<workspace> {
   }
 
   void _handleSendPressed(types.PartialText message) {
+    final user = types.User(id: username);
     final textMessage = types.TextMessage(
-      author: _user,
+      author: user,
       createdAt: DateTime.now().millisecondsSinceEpoch,
-      id: const Uuid().v4(),
+      id: workspace_ID,
       text: message.text,
     );
 
@@ -167,10 +177,13 @@ class ChatPage extends State<workspace> {
   }
 
   void _loadMessages() async {
+    getDocs();
     final response = await rootBundle.loadString('assets/messages.json');
-    final messages = (jsonDecode(response) as List)
-        .map((e) => types.Message.fromJson(e as Map<String, dynamic>))
-        .toList();
+    // final messages = (jsonDecode(response) as List)
+    //     .map((e) => types.Message.fromJson(e as Map<String, dynamic>))
+    //     .toList();
+
+    final messages = _messages;
 
     setState(() {
       _messages = messages;
@@ -179,6 +192,7 @@ class ChatPage extends State<workspace> {
 
   @override
   Widget build(BuildContext context) {
+    final user = types.User(id: username);
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -188,9 +202,70 @@ class ChatPage extends State<workspace> {
           onMessageTap: _handleMessageTap,
           onPreviewDataFetched: _handlePreviewDataFetched,
           onSendPressed: _handleSendPressed,
-          user: _user,
+          user: user,
         ),
       ),
     );
+  }
+
+  Future getDocs() async {
+
+
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('Messages').where('id', isEqualTo: workspace_ID).get();
+    final data = querySnapshot.docs.map((doc) => doc.data()).toList();
+    int i;
+    for(i = 0; i < data.length; i++) {
+
+      Map<String, dynamic> single_message = data[i] as Map<String, dynamic>;
+
+      final user = types.User(id: single_message['author']['id']);
+
+      if(single_message['type'] == "text") {
+        String text = single_message['text'];
+        print("text: " +text);
+
+        final textMessage = types.TextMessage(
+          author: user,
+          createdAt: single_message['createdAt'],
+          id: single_message['id'],
+          text: single_message['text'],
+        );
+
+        _addMessage(textMessage);
+      }
+      else if(single_message['type'] == "file") {
+
+        final message = types.FileMessage(
+          author: user,
+          createdAt: single_message['createdAt'],
+          id: single_message['id'],
+          mimeType: single_message['mimeType'],
+          name: single_message['name'],
+          size: single_message['size'],
+          uri: single_message['uri'],
+        );
+
+        _addMessage(message);
+      }
+      else if(single_message['type'] == "image") {
+
+        final message = types.ImageMessage(
+          author: user,
+          createdAt: single_message['createdAt'],
+          height: single_message['height'],
+          id: single_message['id'],
+          name: single_message['name'],
+          size: single_message['size'],
+          uri: single_message['uri'],
+          width: single_message['width'],
+        );
+
+        _addMessage(message);
+      }
+    }
+    print(_messages.toString());
+    print("data :");
+    print(data);
   }
 }

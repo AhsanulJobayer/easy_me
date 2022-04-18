@@ -43,11 +43,17 @@ class ChatPage extends State<workspace> {
 
   void _addMessage(types.Message message) {
     setState(() {
-      _messages.insert(0, message);
+      //_messages.insert(0, message);
 
       String unique_ID = message.id + message.createdAt.toString();
       print("Unique_ID: " +unique_ID);
       FirebaseFirestore.instance.collection("Messages").doc(unique_ID).set(message.toJson());
+    });
+  }
+
+  void setMessage(types.Message message) {
+    setState(() {
+      _messages.insert(0, message);
     });
   }
 
@@ -190,30 +196,12 @@ class ChatPage extends State<workspace> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final user = types.User(id: username);
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: Chat(
-          messages: _messages,
-          onAttachmentPressed: _handleAtachmentPressed,
-          onMessageTap: _handleMessageTap,
-          onPreviewDataFetched: _handlePreviewDataFetched,
-          onSendPressed: _handleSendPressed,
-          user: user,
-        ),
-      ),
-    );
-  }
-
   Future getDocs() async {
-
-
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('Messages').where('id', isEqualTo: workspace_ID).get();
     final data = querySnapshot.docs.map((doc) => doc.data()).toList();
+    List<types.Message> blank = [];
+    _messages = blank;
     int i;
     for(i = 0; i < data.length; i++) {
 
@@ -232,7 +220,7 @@ class ChatPage extends State<workspace> {
           text: single_message['text'],
         );
 
-        _addMessage(textMessage);
+        setMessage(textMessage);
       }
       else if(single_message['type'] == "file") {
 
@@ -246,7 +234,7 @@ class ChatPage extends State<workspace> {
           uri: single_message['uri'],
         );
 
-        _addMessage(message);
+        setMessage(message);
       }
       else if(single_message['type'] == "image") {
 
@@ -261,11 +249,31 @@ class ChatPage extends State<workspace> {
           width: single_message['width'],
         );
 
-        _addMessage(message);
+        setMessage(message);
       }
     }
     print(_messages.toString());
     print("data :");
     print(data);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = types.User(id: username);
+
+    getDocs();
+    return Scaffold(
+      body: SafeArea(
+        bottom: false,
+        child: Chat(
+          messages: _messages,
+          onAttachmentPressed: _handleAtachmentPressed,
+          onMessageTap: _handleMessageTap,
+          onPreviewDataFetched: _handlePreviewDataFetched,
+          onSendPressed: _handleSendPressed,
+          user: user,
+        ),
+      ),
+    );
   }
 }

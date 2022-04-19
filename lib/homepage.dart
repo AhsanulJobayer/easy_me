@@ -344,15 +344,19 @@ void join_workspace(
         .collection('Workspace')
         .where('Workspace_ID', isEqualTo: workspaceID)
         .get();
-    List data = [];
-    data = querySnapshot.docs.map((doc) => doc.data()).toList();
+
+    final data = querySnapshot.docs.map((doc) => doc.data()).toList();
+
+    Map<String, dynamic> workspace_join = data[0] as Map<String, dynamic>;
+
     //List list = data.entries.map((e) => data(e.key, e.value)).toList();
     print("JOining a workspace _shit" + data.toString());
     String unique_name = workspaceID + Username;
+    String workspace_name = workspace_join['workspace_name'];
 
     FirebaseFirestore.instance.collection("Workspace").doc(unique_name).set({
       'Workspace_ID': workspaceID,
-      'workspace_name': "hagu",
+      'workspace_name': workspace_name,
       'Username': Username,
     });
     Fluttertoast.showToast(
@@ -360,6 +364,7 @@ void join_workspace(
     );
     Navigator.of(context).pop();
   } catch (e) {
+    print(e);
     Fluttertoast.showToast(
       msg: "Please fill up the void",
     );

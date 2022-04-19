@@ -39,6 +39,8 @@ dependencies:
   firebase_core: ^1.14.0
   firebase_storage: ^10.2.7
   fluttertoast: ^8.0.9
+  flutter_profile_picture: ^1.0.2
+  
 
   google_sign_in: ^5.2.4
   image_picker: ^0.8.4+9

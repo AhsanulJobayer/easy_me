@@ -15,29 +15,34 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
 import 'package:uuid/uuid.dart';
-import 'package:tflite/tflite.dart';
 
-class workspace extends StatefulWidget{
+class workspace extends StatefulWidget {
   final String workspace_ID;
   final String username;
-  workspace({Key? key, required this.workspace_ID, required this.username}) : super(key: key);
-
+  final String Team_name;
+  workspace(
+      {Key? key,
+      required this.workspace_ID,
+      required this.username,
+      required this.Team_name})
+      : super(key: key);
 
   @override
-  ChatPage createState() => ChatPage(workspace_ID, username, "");
+  ChatPage createState() => ChatPage(workspace_ID, username, Team_name);
+
 }
 
 class ChatPage extends State<workspace> {
   List<types.Message> _messages = [];
   final String workspace_ID;
   final String username;
-  String fullname;
-  ChatPage(this.workspace_ID, this.username, this.fullname);
+  final String Team_name;
+  ChatPage(this.workspace_ID, this.username, this.Team_name);
+
   //final _user = const types.User(id: '1234');
 
   @override
   void initState() {
-
     print("workspace_ID:: ");
     print(workspace_ID);
     print(username);
@@ -52,11 +57,13 @@ class ChatPage extends State<workspace> {
       //_messages.insert(0, message);
 
       String unique_ID = message.id + message.createdAt.toString();
+
       print("Unique_ID: " +unique_ID);
       Map<String, dynamic> msg = message.toJson();
       msg['channel'] = "channel";
       FirebaseFirestore.instance.collection("Messages").doc(unique_ID).set(msg);
       //FirebaseFirestore.instance.collection("Messages").doc(unique_ID).update(data)
+
     });
   }
 
@@ -118,7 +125,6 @@ class ChatPage extends State<workspace> {
     );
 
     if (result != null && result.files.single.path != null) {
-
       late File file;
 
       setState(() {
@@ -127,16 +133,17 @@ class ChatPage extends State<workspace> {
 
       late String url;
       //cloud storage upload
-      final Reference firebaseStorageRef = FirebaseStorage.instance.ref().child(result.files.single.name + DateTime.now().millisecondsSinceEpoch.toString());
+      final Reference firebaseStorageRef = FirebaseStorage.instance.ref().child(
+          result.files.single.name +
+              DateTime.now().millisecondsSinceEpoch.toString());
       TaskSnapshot uploadTask = await firebaseStorageRef.putFile(file);
 
-      try{
+      try {
         if (uploadTask.state == TaskState.success) {
           url = await firebaseStorageRef.getDownloadURL();
         }
         print(url);
-      }
-      catch(e){
+      } catch (e) {
         print(e);
       }
 
@@ -174,22 +181,21 @@ class ChatPage extends State<workspace> {
 
       late String url;
       //cloud storage upload
-      final Reference firebaseStorageRef = FirebaseStorage.instance.ref().child(result.name + DateTime.now().millisecondsSinceEpoch.toString());
+      final Reference firebaseStorageRef = FirebaseStorage.instance.ref().child(
+          result.name + DateTime.now().millisecondsSinceEpoch.toString());
       TaskSnapshot uploadTask = await firebaseStorageRef.putFile(img);
 
-      try{
+      try {
         if (uploadTask.state == TaskState.success) {
           url = await firebaseStorageRef.getDownloadURL();
         }
         print(url);
-      }
-      catch(e){
+      } catch (e) {
         print(e);
-    }
+      }
 
       print("isuploaded: ");
       print(uploadTask);
-
 
       final message = types.ImageMessage(
         author: user,
@@ -254,20 +260,21 @@ class ChatPage extends State<workspace> {
 
   Future getDocs() async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('Messages').where('id', isEqualTo: workspace_ID).get();
+        .collection('Messages')
+        .where('id', isEqualTo: workspace_ID)
+        .get();
     final data = querySnapshot.docs.map((doc) => doc.data()).toList();
     List<types.Message> blank = [];
     _messages = blank;
     int i;
-    for(i = 0; i < data.length; i++) {
-
+    for (i = 0; i < data.length; i++) {
       Map<String, dynamic> single_message = data[i] as Map<String, dynamic>;
 
       final user = types.User(id: single_message['author']['id']);
 
-      if(single_message['type'] == "text") {
+      if (single_message['type'] == "text") {
         String text = single_message['text'];
-        print("text: " +text);
+        print("text: " + text);
 
         final textMessage = types.TextMessage(
           author: user,
@@ -277,6 +284,7 @@ class ChatPage extends State<workspace> {
         );
 
         setMessage(textMessage);
+
       }
       else if(single_message['type'] == "file") {
 
@@ -293,9 +301,7 @@ class ChatPage extends State<workspace> {
         );
 
         setMessage(message);
-      }
-      else if(single_message['type'] == "image") {
-
+      } else if (single_message['type'] == "image") {
         //String height = single_message['height'];
         //double parameter = await int.parse(single_message['height']).toDouble();
         final message = types.ImageMessage(

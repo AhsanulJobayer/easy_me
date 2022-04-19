@@ -29,6 +29,7 @@ class workspace extends StatefulWidget {
 
   @override
   ChatPage createState() => ChatPage(workspace_ID, username, Team_name);
+
 }
 
 class ChatPage extends State<workspace> {
@@ -37,6 +38,7 @@ class ChatPage extends State<workspace> {
   final String username;
   final String Team_name;
   ChatPage(this.workspace_ID, this.username, this.Team_name);
+
   //final _user = const types.User(id: '1234');
 
   @override
@@ -46,6 +48,7 @@ class ChatPage extends State<workspace> {
     print(username);
 
     super.initState();
+    getuserinfo();
     _loadMessages();
   }
 
@@ -54,11 +57,13 @@ class ChatPage extends State<workspace> {
       //_messages.insert(0, message);
 
       String unique_ID = message.id + message.createdAt.toString();
-      print("Unique_ID: " + unique_ID);
-      FirebaseFirestore.instance
-          .collection("Messages")
-          .doc(unique_ID)
-          .set(message.toJson());
+
+      print("Unique_ID: " +unique_ID);
+      Map<String, dynamic> msg = message.toJson();
+      msg['channel'] = "channel";
+      FirebaseFirestore.instance.collection("Messages").doc(unique_ID).set(msg);
+      //FirebaseFirestore.instance.collection("Messages").doc(unique_ID).update(data)
+
     });
   }
 
@@ -114,7 +119,7 @@ class ChatPage extends State<workspace> {
   }
 
   void _handleFileSelection() async {
-    final user = types.User(id: username);
+    final user = types.User(id: username, firstName: fullname);
     final result = await FilePicker.platform.pickFiles(
       type: FileType.any,
     );
@@ -164,7 +169,7 @@ class ChatPage extends State<workspace> {
     );
 
     if (result != null) {
-      final user = types.User(id: username);
+      final user = types.User(id: username, firstName: fullname);
       final bytes = await result.readAsBytes();
       final image = await decodeImageFromList(bytes);
       //File? selectedImage = File(result.path, result.name);
@@ -228,7 +233,7 @@ class ChatPage extends State<workspace> {
   }
 
   void _handleSendPressed(types.PartialText message) {
-    final user = types.User(id: username);
+    final user = types.User(id: username, firstName: fullname);
     final textMessage = types.TextMessage(
       author: user,
       createdAt: DateTime.now().millisecondsSinceEpoch,
@@ -279,7 +284,12 @@ class ChatPage extends State<workspace> {
         );
 
         setMessage(textMessage);
-      } else if (single_message['type'] == "file") {
+
+      }
+      else if(single_message['type'] == "file") {
+
+        print(single_message['uri']);
+
         final message = types.FileMessage(
           author: user,
           createdAt: single_message['createdAt'],
@@ -287,7 +297,7 @@ class ChatPage extends State<workspace> {
           mimeType: single_message['mimeType'],
           name: single_message['name'],
           size: single_message['size'],
-          uri: single_message['uri'],
+          uri: single_message['uri'].toString(),
         );
 
         setMessage(message);
@@ -313,9 +323,32 @@ class ChatPage extends State<workspace> {
     print(data);
   }
 
+  void getuserinfo() async {
+
+    //print("user_info: " +username);
+
+
+      QuerySnapshot Snapshot = await FirebaseFirestore.instance
+          .collection('User_Info').where('Username', isEqualTo: username).get();
+      final data = Snapshot.docs.map((doc) => doc.data()).toList();
+      print("user_info : ");
+      print(data);
+
+
+    //print(data);
+
+    Map<String, dynamic> current_user = data[0] as Map<String, dynamic>;
+
+    fullname = current_user['FullName'];
+
+    print('FullName: ' + fullname);
+
+    print(current_user);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final user = types.User(id: username);
+    final user = types.User(id: username, firstName: fullname);
 
     getDocs();
     return Scaffold(

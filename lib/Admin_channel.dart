@@ -45,6 +45,7 @@ class MyStatefulWidget extends State<Admin_channel> {
     return Scaffold(
         appBar: AppBar(
           title: const Text("Team"),
+          backgroundColor: Colors.black,
         ),
         body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance

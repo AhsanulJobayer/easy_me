@@ -18,7 +18,8 @@ class signup extends StatelessWidget {
     return MaterialApp(
       title: _title,
       home: Scaffold(
-        appBar: AppBar(title: const Text(_title)),
+        appBar:
+            AppBar(backgroundColor: Colors.black, title: const Text(_title)),
         body: const MyStatefulWidget(),
       ),
     );

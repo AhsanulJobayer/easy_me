@@ -8,39 +8,33 @@ import 'package:flutter/material.dart';
 
 import 'package:fluttertoast/fluttertoast.dart';
 
-class login extends StatelessWidget {
+class login extends StatefulWidget {
   const login({Key? key}) : super(key: key);
 
-  static const String _title = 'eASY.ME';
+  static const String _title = 'EASY.ME';
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: _title,
-      home: Scaffold(
-        appBar: AppBar(title: const Text(_title)),
-        body: const MyStatefulWidget(),
-      ),
-    );
-  }
+  MyStatefulWidget createState() => MyStatefulWidget();
 }
 
-class MyStatefulWidget extends StatefulWidget {
-  const MyStatefulWidget({Key? key}) : super(key: key);
-
-  @override
-  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
-}
-
-class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+class MyStatefulWidget extends State<login> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-        padding: const EdgeInsets.all(10),
-        child: ListView(
+    return Scaffold(
+        // backgroundColor: Colors.black,
+        // backgroundColor: Color.fromARGB(255, 41, 40, 40),
+        appBar: AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          backgroundColor: Colors.black,
+
+          title: Text("LOGIN"),
+        ),
+        body: Center(
+            child: ListView(
           children: <Widget>[
             Container(
                 alignment: Alignment.center,
@@ -131,7 +125,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               mainAxisAlignment: MainAxisAlignment.center,
             ),
           ],
-        ));
+        )));
   }
 }
 
@@ -143,12 +137,13 @@ void signin(String email, String password, BuildContext context) async {
       msg: "Successfully logged in",
     );
 
-    String nameOnly = email.substring(0,email.indexOf('@'));
-    final db1 = FirebaseDatabase.instance.ref().child("User_Info").child(nameOnly);
+    String nameOnly = email.substring(0, email.indexOf('@'));
+    final db1 =
+        FirebaseDatabase.instance.ref().child("User_Info").child(nameOnly);
     // Get the data once
     DatabaseEvent event1 = await db1.once();
 
-    final data  = event1.snapshot.value;
+    final data = event1.snapshot.value;
 
     //print(data.toString());
 
@@ -156,8 +151,8 @@ void signin(String email, String password, BuildContext context) async {
     String username = usernameEvent.snapshot.value.toString();
     print("UserName: " + username);
 
-    Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (context) => homepage(Username: username)));
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => homepage(Username: username)));
   } catch (e) {
     Fluttertoast.showToast(
       msg: "Invalid email or password",

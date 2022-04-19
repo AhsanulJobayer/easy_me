@@ -45,7 +45,9 @@ class MyStatefulWidget extends State<homepage> {
   Widget build(BuildContext context) {
     print("Hey this is your Home page  :  " + Username);
     return Scaffold(
+      
       appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 41, 40, 40),
         title: const Text("Homepage"),
         actions: <Widget>[
           PopupMenuButton(

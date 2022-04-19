@@ -205,35 +205,37 @@ Future<User?> registerUsingEmailPassword({
 }
 
 void signUp(
-    String email, String password, String username, String full_name) async {
+    String email, String password, String username, String fullName) async {
   try {
     String nameOnly = email.substring(0, email.indexOf('@'));
     FirebaseAuth auth = FirebaseAuth.instance;
-    final referenceDatabase = FirebaseDatabase.instance;
-    final ref = referenceDatabase.ref().child('User_Info');
-    await auth.createUserWithEmailAndPassword(email: email, password: password);
-    if (!username.isEmpty &&
-        !full_name.isEmpty &&
-        !email.isEmpty &&
-        !password.isEmpty) {
-      ref.child(nameOnly).set({
+
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('User_Info')
+        .where('Username', isEqualTo: username)
+        .get();
+
+    final data = querySnapshot.docs.map((doc) => doc.data()).toList();
+
+    if (data.isEmpty) {
+      await auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+
+      FirebaseFirestore.instance.collection("User_Info").doc(username).set({
         'Username': username,
-        'FullName': full_name,
+        'FullName': fullName,
         'NameOnly': nameOnly,
         'Email': email,
         'Password': password,
       });
+      Fluttertoast.showToast(
+        msg: "User created",
+      );
+    } else {
+      Fluttertoast.showToast(
+        msg: "User Id is not available",
+      );
     }
-    FirebaseFirestore.instance.collection("User_Info").doc(username).set({
-      'Username': username,
-      'FullName': full_name,
-      'NameOnly': nameOnly,
-      'Email': email,
-      'Password': password,
-    });
-    Fluttertoast.showToast(
-      msg: "User created",
-    );
   } catch (e) {
     Fluttertoast.showToast(
       msg: "Use valid email and use strong password",

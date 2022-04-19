@@ -11,6 +11,8 @@ import 'package:easy_me/workspace.dart';
 import 'package:easy_me/help.dart';
 import 'package:easy_me/Model.dart';
 
+import 'Admin_channel.dart';
+
 class homepage extends StatefulWidget {
   final String Username;
 
@@ -129,7 +131,8 @@ class MyStatefulWidget extends State<homepage> {
                     onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => workspace(
+                            builder: (context) => Admin_channel(
+                                admin: data['Admin'],
                                 workspace_ID: data['Workspace_ID'],
                                 username: Username))),
                   ),
@@ -287,9 +290,7 @@ class MyStatefulWidget extends State<homepage> {
                                                           Username,
                                                           context);
                                                     }
-                                                    Fluttertoast.showToast(
-                                                        msg:
-                                                            "Successfully Joined");
+
                                                     Navigator.of(context).pop();
                                                   },
                                                 )),
@@ -321,16 +322,47 @@ class MyStatefulWidget extends State<homepage> {
 void create_workspace(String workspaceID, String workspaceName, String Username,
     BuildContext context) async {
   try {
-    FirebaseFirestore.instance.collection("Workspace").doc(workspaceID).set({
-      'Workspace_ID': workspaceID,
-      'workspace_name': workspaceName,
-      'Username': Username,
-    });
-    Fluttertoast.showToast(
-      msg: "New workspace created Successfully",
-    );
-    Navigator.of(context).pop();
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('Workspace')
+        .where('Workspace_ID', isEqualTo: workspaceID)
+        .get();
+
+    final data = querySnapshot.docs.map((doc) => doc.data()).toList();
+    if (data.isNotEmpty) {
+      Map<String, dynamic> workspace_join = data[0] as Map<String, dynamic>;
+
+      //List list = data.entries.map((e) => data(e.key, e.value)).toList();
+      if (Username == workspace_join['Username']) {
+        Fluttertoast.showToast(msg: "This workspace Id is not available");
+      } else {
+        FirebaseFirestore.instance
+            .collection("Workspace")
+            .doc(workspaceID)
+            .set({
+          'Workspace_ID': workspaceID,
+          'workspace_name': workspaceName,
+          'Username': Username,
+          'Admin': "YES",
+        });
+        Fluttertoast.showToast(
+          msg: "New workspace created Successfully",
+        );
+        Navigator.of(context).pop();
+      }
+    } else {
+      FirebaseFirestore.instance.collection("Workspace").doc(workspaceID).set({
+        'Workspace_ID': workspaceID,
+        'workspace_name': workspaceName,
+        'Username': Username,
+        'Admin': "YES",
+      });
+      Fluttertoast.showToast(
+        msg: "New workspace created Successfully",
+      );
+      Navigator.of(context).pop();
+    }
   } catch (e) {
+    print(e);
     Fluttertoast.showToast(
       msg: "Please fill up the void",
     );
@@ -347,27 +379,38 @@ void join_workspace(
 
     final data = querySnapshot.docs.map((doc) => doc.data()).toList();
 
-    Map<String, dynamic> workspace_join = data[0] as Map<String, dynamic>;
+    if (data.length == 0) {
+      Fluttertoast.showToast(msg: "THere is no such workspace");
+      Navigator.of(context).pop();
+    } else {
+      Map<String, dynamic> workspace_join = data[0] as Map<String, dynamic>;
 
-    //List list = data.entries.map((e) => data(e.key, e.value)).toList();
-    print("JOining a workspace _shit" + data.toString());
-    String unique_name = workspaceID + Username;
-    String workspace_name = workspace_join['workspace_name'];
+      //List list = data.entries.map((e) => data(e.key, e.value)).toList();
+      if (Username == workspace_join['Username']) {
+        Fluttertoast.showToast(msg: "You have already joined this workspace");
+        Navigator.of(context).pop();
+      } else {
+        print("JOining a workspace _shit" + data.toString());
+        String unique_name = workspaceID + Username;
+        String workspace_name = workspace_join['workspace_name'];
 
-    FirebaseFirestore.instance.collection("Workspace").doc(unique_name).set({
-      'Workspace_ID': workspaceID,
-      'workspace_name': workspace_name,
-      'Username': Username,
-    });
-    Fluttertoast.showToast(
-      msg: "New workspace joined Successfully",
-    );
-    Navigator.of(context).pop();
+        FirebaseFirestore.instance
+            .collection("Workspace")
+            .doc(unique_name)
+            .set({
+          'Workspace_ID': workspaceID,
+          'workspace_name': workspace_name,
+          'Username': Username,
+          'Admin': "NO",
+        });
+        Fluttertoast.showToast(
+          msg: "New workspace joined Successfully",
+        );
+        Navigator.of(context).pop();
+      }
+    }
   } catch (e) {
     print(e);
-    Fluttertoast.showToast(
-      msg: "Please fill up the void",
-    );
   }
 }
 

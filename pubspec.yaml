@@ -58,6 +58,8 @@ dependencies:
   open_file: ^3.2.1
   uuid: ^3.0.6
   path_provider: ^2.0.9
+  universal_html: ^2.0.8
+  tflite: ^1.1.2
 
 dev_dependencies:
   flutter_test:

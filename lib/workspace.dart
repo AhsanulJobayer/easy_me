@@ -1,6 +1,9 @@
 import 'dart:convert';
 
-import 'dart:convert';
+import 'dart:io';
+//import 'package:universal_html/html.dart';
+import 'package:cupertino_icons/cupertino_icons.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +15,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:mime/mime.dart';
 import 'package:open_file/open_file.dart';
 import 'package:uuid/uuid.dart';
+import 'package:tflite/tflite.dart';
 
 class workspace extends StatefulWidget{
   final String workspace_ID;
@@ -109,6 +113,28 @@ class ChatPage extends State<workspace> {
     );
 
     if (result != null && result.files.single.path != null) {
+
+      late File file;
+
+      setState(() {
+        file = File(result.files.single.path!);
+      });
+
+      late String url;
+      //cloud storage upload
+      final Reference firebaseStorageRef = FirebaseStorage.instance.ref().child(result.files.single.name + DateTime.now().millisecondsSinceEpoch.toString());
+      TaskSnapshot uploadTask = await firebaseStorageRef.putFile(file);
+
+      try{
+        if (uploadTask.state == TaskState.success) {
+          url = await firebaseStorageRef.getDownloadURL();
+        }
+        print(url);
+      }
+      catch(e){
+        print(e);
+      }
+
       final message = types.FileMessage(
         author: user,
         createdAt: DateTime.now().millisecondsSinceEpoch,
@@ -116,7 +142,7 @@ class ChatPage extends State<workspace> {
         mimeType: lookupMimeType(result.files.single.path!),
         name: result.files.single.name,
         size: result.files.single.size,
-        uri: result.files.single.path!,
+        uri: url,
       );
 
       _addMessage(message);
@@ -134,6 +160,31 @@ class ChatPage extends State<workspace> {
       final user = types.User(id: username);
       final bytes = await result.readAsBytes();
       final image = await decodeImageFromList(bytes);
+      //File? selectedImage = File(result.path, result.name);
+      late File img;
+
+      setState(() {
+        img = File(result.path);
+      });
+
+      late String url;
+      //cloud storage upload
+      final Reference firebaseStorageRef = FirebaseStorage.instance.ref().child(result.name + DateTime.now().millisecondsSinceEpoch.toString());
+      TaskSnapshot uploadTask = await firebaseStorageRef.putFile(img);
+
+      try{
+        if (uploadTask.state == TaskState.success) {
+          url = await firebaseStorageRef.getDownloadURL();
+        }
+        print(url);
+      }
+      catch(e){
+        print(e);
+    }
+
+      print("isuploaded: ");
+      print(uploadTask);
+
 
       final message = types.ImageMessage(
         author: user,
@@ -142,7 +193,7 @@ class ChatPage extends State<workspace> {
         id: workspace_ID,
         name: result.name,
         size: bytes.length,
-        uri: result.path,
+        uri: url,
         width: image.width.toDouble(),
       );
 
@@ -238,6 +289,8 @@ class ChatPage extends State<workspace> {
       }
       else if(single_message['type'] == "image") {
 
+        //String height = single_message['height'];
+        //double parameter = await int.parse(single_message['height']).toDouble();
         final message = types.ImageMessage(
           author: user,
           createdAt: single_message['createdAt'],
